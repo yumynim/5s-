@@ -59,10 +59,7 @@ export default function App() {
             </tr>
           </thead>
           <tbody>
-            {PERIODS.filter((p) => {
-              if (p.period === 6) return false;
-              return true;
-            }).map((p) => (
+            {PERIODS.map((p) => (
               <tr key={p.period} className={currentPeriod === p.period ? 'current-row' : ''}>
                 <td className="td-period">
                   <span className="period-num">{p.period}</span>
