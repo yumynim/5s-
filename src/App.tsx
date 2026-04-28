@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TIMETABLE, PERIODS, DAYS, ATTENDANCE_BASE_URL, type Day, type ColorType } from './timetableData';
 import './App.css';
 
@@ -10,8 +10,8 @@ const COLOR_MAP: Record<ColorType, string> = {
   pink: 'cell-pink',
 };
 
-function getTodayDay(): Day | null {
-  const dayIndex = new Date().getDay();
+function getTodayDay(now: Date): Day | null {
+  const dayIndex = now.getDay();
   if (dayIndex === 0 || dayIndex === 6) return null;
   return DAYS[dayIndex - 1];
 }
@@ -30,12 +30,28 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(timer);
+    const tick = () => setNow(new Date());
+
+    // 次の「分の境界」に合わせてから毎分ちょうどに更新する
+    // → 授業切り替わり（例: 11:00:00）を遅延なく即座に検知できる
+    const msUntilNextMinute =
+      (60 - new Date().getSeconds()) * 1000 - new Date().getMilliseconds();
+
+    const timeout = setTimeout(() => {
+      tick();
+      intervalRef.current = setInterval(tick, 60_000);
+    }, msUntilNextMinute);
+
+    return () => {
+      clearTimeout(timeout);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
 
-  const today = getTodayDay();
+  const today = getTodayDay(now);
   const currentPeriod = getCurrentPeriod(now);
   const currentEntry = today && currentPeriod ? TIMETABLE[currentPeriod][today] : null;
   const currentPeriodInfo = currentPeriod ? PERIODS.find(p => p.period === currentPeriod) : null;
