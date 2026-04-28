@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { TIMETABLE, PERIODS, DAYS, ATTENDANCE_BASE_URL, type Day, type ColorType } from './timetableData';
-import { QRScanner } from './QRScanner';
+import { TIMETABLE, PERIODS, DAYS, getAttendanceUrl, type Day, type ColorType } from './timetableData';
 import './App.css';
 
 const COLOR_MAP: Record<ColorType, string> = {
@@ -29,7 +28,6 @@ function getCurrentPeriod(now: Date): number | null {
 
 export default function App() {
   const [toast, setToast] = useState<string | null>(null);
-  const [qrTarget, setQrTarget] = useState<{ name: string } | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -59,15 +57,10 @@ export default function App() {
   const currentPeriodInfo = currentPeriod ? PERIODS.find(p => p.period === currentPeriod) : null;
 
   function handleCellClick(room: number, name: string) {
-    if (room >= 700) {
-      // 7xx番台はQRコードが暗号化されているためカメラで読み取る
-      setQrTarget({ name });
-    } else {
-      const url = `${ATTENDANCE_BASE_URL}${room}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setToast(`出席登録: ${name.split('\n')[0]}`);
-      setTimeout(() => setToast(null), 3000);
-    }
+    const url = getAttendanceUrl(room);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setToast(`出席登録: ${name.split('\n')[0]}`);
+    setTimeout(() => setToast(null), 3000);
   }
 
   return (
@@ -136,13 +129,6 @@ export default function App() {
       </div>
 
       {toast && <div className="toast">{toast}</div>}
-
-      {qrTarget && (
-        <QRScanner
-          courseName={qrTarget.name}
-          onClose={() => setQrTarget(null)}
-        />
-      )}
     </div>
   );
 }

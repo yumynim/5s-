@@ -104,3 +104,13 @@ export const TIMETABLE: Record<number, Record<Day, ClassEntry | null>> = {
 
 export const ATTENDANCE_BASE_URL =
   'https://attendance.is.it-chiba.ac.jp/attendance/class_room/';
+
+// 7xx番台はQRコードが暗号化されているため個別URLを設定
+export const ROOM_URL: Record<number, string> = {
+  732: 'https://attendance.is.it-chiba.ac.jp/attendance/class_room/7302',
+  733: 'https://attendance.is.it-chiba.ac.jp/attendance/class_room/7303',
+};
+
+export function getAttendanceUrl(room: number): string {
+  return ROOM_URL[room] ?? `${ATTENDANCE_BASE_URL}${room}`;
+}
