@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TIMETABLE, PERIODS, DAYS, ATTENDANCE_BASE_URL, type Day, type ColorType } from './timetableData';
 import './App.css';
 
@@ -16,8 +16,7 @@ function getTodayDay(): Day | null {
   return DAYS[dayIndex - 1];
 }
 
-function getCurrentPeriod(): number | null {
-  const now = new Date();
+function getCurrentPeriod(now: Date): number | null {
   const total = now.getHours() * 60 + now.getMinutes();
   for (const p of PERIODS) {
     const [sh, sm] = p.startTime.split(':').map(Number);
@@ -29,8 +28,15 @@ function getCurrentPeriod(): number | null {
 
 export default function App() {
   const [toast, setToast] = useState<string | null>(null);
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+
   const today = getTodayDay();
-  const currentPeriod = getCurrentPeriod();
+  const currentPeriod = getCurrentPeriod(now);
 
   function handleCellClick(room: number, name: string) {
     const url = `${ATTENDANCE_BASE_URL}${room}`;
