@@ -37,6 +37,8 @@ export default function App() {
 
   const today = getTodayDay();
   const currentPeriod = getCurrentPeriod(now);
+  const currentEntry = today && currentPeriod ? TIMETABLE[currentPeriod][today] : null;
+  const currentPeriodInfo = currentPeriod ? PERIODS.find(p => p.period === currentPeriod) : null;
 
   function handleCellClick(room: number, name: string) {
     const url = `${ATTENDANCE_BASE_URL}${room}`;
@@ -50,6 +52,17 @@ export default function App() {
       <header className="header">
         <h1>2026年 1学期</h1>
         <p className="subtitle">授業をタップして出席登録</p>
+        {currentEntry && currentPeriodInfo && (
+          <button
+            className={`now-card ${COLOR_MAP[currentEntry.color]}`}
+            onClick={() => handleCellClick(currentEntry.room, currentEntry.name)}
+          >
+            <span className="now-card-badge">NOW</span>
+            <span className="now-card-name">{currentEntry.name}</span>
+            <span className="now-card-meta">{currentPeriodInfo.period}限 {currentPeriodInfo.startTime}〜{currentPeriodInfo.endTime}</span>
+            <span className="room-badge">{currentEntry.room}</span>
+          </button>
+        )}
       </header>
 
       <div className="table-wrapper">
