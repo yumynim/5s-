@@ -66,11 +66,11 @@ export const TIMETABLE: Record<number, Record<Day, ClassEntry | null>> = {
     金: null,
   },
   6: {
-    月: null,
-    火: null,
-    水: null,
+    月: { name: 'クラウドコンピューティング', room: 646, color: 'green' },
+    火: { name: '経済学', room: 612, color: 'pink' },
+    水: { name: 'ソフトコンピューティング\n※情報', room: 646, color: 'green' },
     木: null,
-    金: null,
+    金: { name: 'Webプログラミング基礎実験\n※NS / Webシステム基礎実験', room: 733, color: 'green' },
   },
   7: {
     月: { name: 'クラウドコンピューティング', room: 646, color: 'green' },
